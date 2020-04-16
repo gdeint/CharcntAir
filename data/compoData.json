@@ -1,0 +1,16 @@
+{
+  "praStrings": [
+    {
+      "strContent": "Run-->",
+      "correLen": "6"
+    },
+    {
+      "strContent": "< min?",
+      "correLen": "6"
+    },
+    {
+      "strContent": "<-- a <<",
+      "correLen": "8"
+    }
+  ]
+}

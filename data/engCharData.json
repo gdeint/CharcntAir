@@ -1,0 +1,12 @@
+{
+  "praStrings": [
+    {
+      "strContent": "Hello world!",
+      "correLen": "12"
+    },
+    {
+      "strContent": "abcdefg",
+      "correLen": "7"
+    }
+  ]
+}

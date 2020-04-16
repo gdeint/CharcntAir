@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>宜英数字符</title>
+
+<style type="text/css">
+.TitleDiv {
+	font-size: 36px;
+	background-color: #FC9;
+}
+.StatBlock1 {
+	color: #000;
+	background-color: #FF3;
+	display: inline-block;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+.StatBlock2 {
+	color: #000;
+	background-color: #0F3;
+	display: inline-block;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+.StatBlock2 img {
+	vertical-align:middle;
+}
+
+.PreloadUI {
+	color: #FFF;
+	background-color: #6C9;
+	position: absolute;
+	width: 413px;
+	height: 332px;
+	left: 248px;
+	top: 143px;
+	display: none;
+}
+.StatDiv {
+}
+</style>
+<audio id="bgAudio" src="music/music01_gbout.m4a" autoplay loop>
+您的浏览器不支持 audio 标签。
+</audio>
+
+</head>
+
+<body>
+
+	<script language="javascript">
+		document.getElementById("bgAudio").volume = 0.7;
+		var g_dataFileList = ["compoData.json","engCharData.json","numData.json","symbData.json"];
+		var g_praStrObjs = new Array(); // 最终选中进行练习的字符串集合。下标由0开始。
+		var g_loadedStrObjs = new Array(); // 二维数组。第一维：文件；第二维：文件内字符串。
+		var g_curPraStrTag = 0;
+		var g_curPraStr;
+		var g_curProgress = 0; //进度。刚开始练习或未开始练习时为0。
+		var g_reslTab = new Array(); //练习结果数组。1表示正确，0表示错误。下标0为第一个字符串。
+
+		initData();
+
+
+		function startLoadDataFile(fname,finishCB,params) {
+			var dataURL = fname;
+				let req = new XMLHttpRequest();
+				req.open('GET' , dataURL);
+				req.responseType = 'text';
+				req.send();
+	
+				req.onload = function() {
+					let jsonText = req.response;
+					let praStringsObj = JSON.parse(jsonText);
+					let praStrings = praStringsObj['praStrings'];
+
+					var tmpTag;
+					for(tmpTag = 0;tmpTag < 4-1;++tmpTag) {
+						if(g_dataFileList[tmpTag] == fname.substr(5)) {
+							break;
+						}
+					}
+					g_loadedStrObjs[tmpTag] = new Array();
+
+					var i;
+					for(i=0;i<praStrings.length;++i) {
+//						praStrObjs[i] = praStrings[i];
+						g_loadedStrObjs[tmpTag][i] = praStrings[i];
+
+					}
+					
+					finishCB(fname);
+				}
+		}
+
+		var g2_loadedFlagArr = new Array(); //
+		
+		
+		
+		
+		function initData() {
+
+
+			var tmpDataFileTag;
+
+			for(tmpDataFileTag = 0;tmpDataFileTag < 4;++tmpDataFileTag) {
+				var tmpFname = "data/"+g_dataFileList[tmpDataFileTag];
+				var pars = new Array();
+				pars[0] = tmpFname;
+				startLoadDataFile(tmpFname,onDataFileLoaded,pars);
+				
+				function onDataFileLoaded(fname) {
+
+					// Check whether all finished!
+					var i;
+					var af = true;
+					for(i=0;i<4;++i) {
+						if(null == g_loadedStrObjs[i] || g_loadedStrObjs[i].length <= 0) {
+							af = false;
+							break;
+						}
+						else {
+						}
+					}
+
+					if(af) {
+						runPra();
+					}
+				}
+			}
+		}
+
+		function setProgressBarTo(p) {
+			var i;
+			for(i=1;i<=p;++i) {
+				if(g_reslTab[i-1]) {
+					eval("ProgressCell"+i).src="imgs/progressCellCorrect.png";
+				}
+				else {
+					eval("ProgressCell"+i).src="imgs/progressCellWrong.png";
+				}
+			}
+			for(;i<=10;++i) {
+				eval("ProgressCell"+i).src="imgs/progressCellNone.png";
+			}				
+		}
+
+
+		function runPra() {
+			var randTypeTag; // 0：
+			var randStrTag; // 当前类型数据下的随机下标。
+
+//			Sel random data
+			var i;
+			for(i=0;i<10;++i) {
+				randTypeTag = Math.floor(Math.floor(Math.random()*4));
+				randStrTag = Math.floor(Math.random()* g_loadedStrObjs[randTypeTag].length);
+				g_praStrObjs[i] = g_loadedStrObjs[randTypeTag][randStrTag];
+			}
+			
+			curProgress = 0;
+			doString(g_praStrObjs[0]);
+			setProgressBarTo(curProgress);
+		}
+		
+		function rePra() {
+			document.getElementById("NextBtn").disabled = true;
+			document.getElementById("OKBtn").disabled = false;
+			g_curPraStrTag = 0;
+			runPra();
+		}
+
+		function toGoBack(){
+			if(confirm('您确定要退出练习吗？')){
+				location.href='charCntH5.html';
+			}
+		}
+	</script>
+    <div class="TitleDiv">宜英字符数数训练V1.0.1</div>
+    <div class="StatDiv">
+    	<span class="StatBlock1">
+            <input type="button" value="<——退出练习" onclick="toGoBack()">
+        	当前练习类型：快速练习
+      </span>
+        <span class="StatBlock2">进度：<!--++X++.....-->
+        <img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell1"><img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell2"><img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell3"><img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell4"><img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell5"><img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell6"><img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell7"><img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell8"><img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell9"><img src="imgs/progressCellNone.png" width="15" height="25" alt="-" id="ProgressCell10">
+        &nbsp;
+        </span>
+    </div>
+    <div class="PreloadUI">
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+      <p>  此处显示  class "PreloadUI" 的内容</p>
+    </div>
+    <br><br><br>
+    <p>字符串：<input type="text" name="charString" id="charString" disabled/><p>
+    <p>请数数字符（包括空格）个数并填写：<input type="text" name="myCnt" id="myCnt" style="width:60px;" /><input type="button" id="OKBtn" value="确定" onclick="checkCnt();" /><p>
+    <p>&nbsp;<p><div name="resp" id="resp"></div><p>
+    <p><input type="button" id="NextBtn" value="下一字符串" onClick="nextPraStr()" disabled /><p>
+    
+    <script language="javascript">
+		function doString(s) {
+			curPraStr = s;
+			charString.value = s['strContent'];
+			myCnt.value = "";
+		}
+		
+		function checkCnt() {
+			document.getElementById("OKBtn").disabled = true;
+			if(myCnt.value == curPraStr['correLen']) {
+				resp.innerText="回答正确！";
+				g_reslTab[curProgress] = 1;
+			}
+			else {
+				resp.innerText="错误！正确结果是"+curPraStr['correLen']+"！";
+				g_reslTab[curProgress] = 0;
+			}
+			setProgressBarTo(curProgress+1);
+			++curProgress;
+			if(curProgress >= 10) {
+				var correRat = 0;
+				for(i=0;i<10;++i) {
+					correRat += g_reslTab[i];
+				}
+				correRat *= 10;
+				if(window.confirm("练习结束！正确率"+correRat+"%，是否重新练习？")) {
+					rePra();
+				}
+				else {
+					
+				}
+			}
+			else {
+				document.getElementById("NextBtn").disabled = false;
+			}
+		}
+		
+		function nextPraStr() {
+			g_curPraStrTag = (g_curPraStrTag+1)%g_praStrObjs.length;
+			curPraStr = g_praStrObjs[g_curPraStrTag];
+			doString(curPraStr);
+			document.getElementById("NextBtn").disabled = true;
+			document.getElementById("OKBtn").disabled = false;
+		}
+
+	</script>
+
+
+</body>
+</html>
